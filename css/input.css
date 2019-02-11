@@ -1,0 +1,75 @@
+input::-webkit-input-placeholder {
+  color: #c3c3c3;
+}
+
+input:-moz-placeholder {
+  color: #c3c3c3;
+}
+
+input::-moz-placeholder {
+  color: #c3c3c3;
+}
+
+input:-ms-input-placeholder {
+  color: #c3c3c3;
+}
+
+input:focus {
+  outline: none;
+}
+
+.sc-box {
+  position: relative;
+  width: 450px;
+  height: 40px;
+}
+
+.con-sc-box {
+  display: inline-block;
+}
+
+.sc-input {
+  height: 100%;
+  width: 100%;
+  padding: 8px 10px;
+  font: 15px 'lucida sans', 'trebuchet MS', 'Tahoma';
+  margin-top: 28px;
+  border: none;
+  display: block;
+  position: relative;
+  background-clip: padding-box;
+  background: none;
+  background-color: #fff;
+  border-radius: 2px;
+  box-shadow: 1px 1px 16px rgba(0, 0, 0, 0.45);
+}
+
+.sc-input:hover, .sc-input:focus {
+  box-shadow: 1px 1px 16px rgba(0, 0, 0, 0.5);
+}
+
+.con-input {
+  height: 40px;
+  width: 450px;
+  margin: -4.5rem 15rem;
+}
+
+.sc-submit {
+  border: none;
+  width: 40px;
+  float: right;
+  border-radius: 2px;
+  background: transparent url("../image/search1.png") center center no-repeat;
+  background-size: 150%;
+  cursor: pointer;
+  position: absolute;
+  display: block;
+  height: 0;
+  top: -1px;
+  right: -1px;
+  padding: 40px 0 0;
+}
+
+.con-sc-submit {
+  top: 27px;
+}
