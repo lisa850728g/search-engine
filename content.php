@@ -31,17 +31,23 @@ if (isset($_POST["input"])) {
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>財經資訊搜尋網</title>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  <link rel="stylesheet" type="text/css" href="content.css">
+  <title>FinFetch</title>
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="js/content.js"></script>
+  <link rel="stylesheet" type="text/css" href="css/content.css">
+  <link rel="stylesheet" type="text/css" href="css/input.css">
 </head>
-  <form name="myForm" method="post">
-    <img src="image/title_next.png" action="home.php">
-    <input type="text" name="input" value="<?php echo $text;?>"autofocus>
-    <button type="submit">Search</button>
-  </form>
+<div class="topbar">
+  <img src="./image/title3.png" class="logo" action="home.php">
+  <div class="sc-box con-sc-box">
+    <form name="myForm" method="post">
+      <input type="text" class="sc-input" id="user_input" name="input" value="<?php echo $text;?>" autocomplete = "off">
+      <input type="submit" class="sc-submit con-sc-submit"></input>
+    </form>
+  </div>
+</div>
 </html>
 <?php
 
@@ -72,7 +78,7 @@ if (!$db_selected) {
     die("Error db: " . mysqli_error($cnx));
 }
 
-$sql = "SELECT HEADLINES,CONTENT,URL,AUTHOR,GETFROM,PUBLISHED, MATCH (HEADLINES,CONTENT) AGAINST ('$user_input' IN BOOLEAN MODE) AS score
+$sql = "SELECT ID,HEADLINES,CONTENT,URL,AUTHOR,GETFROM,PUBLISHED, MATCH (HEADLINES,CONTENT) AGAINST ('$user_input' IN BOOLEAN MODE) AS score
           FROM fetch_data WHERE MATCH (HEADLINES,CONTENT) AGAINST ('$user_input' IN BOOLEAN MODE) ORDER BY score DESC, PUBLISHED DESC";
 $result = mysqli_query($cnx, $sql);
 if (!$result) {
@@ -119,12 +125,17 @@ function get_str($str, $max_length)
     return $str;
 }
 
-if ($data_nums == 0) {
-    echo "<font class=\"result\">無搜尋結果</font>";
-} else {
-    echo "<font class=\"result\">有 $data_nums 項結果</font><br>";
-    echo "<div class=\"list-articles\">";
+if ($data_nums == 0) { ?>
+    <font class="result">無搜尋結果，請輸入其他關鍵字詞</font>
+    <footer class="footer noresult">
+        Copyright &copy; 2017 Lisa Ko FinFetch website
+    </footer>
+<? } else { ?>
+    <div><font class="result">有 <?echo $data_nums?> 項結果</font></div>
+    <div class="list-articles">
+    <?
     while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
+        $id = $row['ID'];
         $headlines = get_str($row['HEADLINES'], 75);
         $url = $row['URL'];
         $show_url = get_str($url, 60);
@@ -159,70 +170,70 @@ if ($data_nums == 0) {
                 $positions = array();
             }
         }
-        $show_content = get_str($from_first, 290);
-
-        echo "<div class=\"article\">";
-        echo "<a Target='_blank' href=$url> $headlines </a><br>";
-        echo "<font class=\"publisher\"> &#9656; $get_from </font>";
-        echo "<font class=\"url-font\"> $show_url </font><br>";
-        echo "<font class=\"date-font\"> $show_date </font>";
-        echo "<font class=\"content-font\"> $show_content </font><br>";
-        echo "<font class=\"word-count\"> 搜尋到的字詞：";
-        for ($i = 0 ; $i < count($split) ; $i ++) {
+        $show_content = get_str($from_first, 290);?>
+        <div class="article">
+          <ul class="nav nav-pills nav-stacked">
+            <li>
+              <a target=_blank href=<?echo $url?> onclick="myopen(this)" id=<?echo $id?>><?echo $headlines?></a>
+            </li>
+          <ul>
+          <font class="publisher"> &#9656; <?echo $get_from?></font>
+          <font class="url-font"><?echo $show_url?></font><br>
+          <font class="date-font"><?echo $show_date?></font>
+          <font class="content-font"><?echo $show_content?></font><br>
+          <font class="word-count"> 搜尋到的字詞：
+          <? for ($i = 0 ; $i < count($split) ; $i ++) {
             echo $split[$i] . " " . $wordCount[$i] . " 個 ";
-        }
-        echo "</font></div>";
-    }
-    echo "</div>";
-}
-
-echo "<div class=\"relative-articles\">
-      <h2>Relative Articles</h2>
-      <table class=\"table\">
-        <thead>
-          <tr>
-            <th>Order</th>
-            <th>Title</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1</td>
-            <td>康師傅、統一、旺旺還能再輝煌嗎？那些叱吒... </td>
-          </tr>
-        </tbody>
-      </table>
-      </div>";
-
-echo "<div class=\"page\">";
-$previous_page = $page-1;
-if ($previous_page != 0) {
-    echo "<a href=?page=" . $previous_page . " class=\"navi-paging\">← Previous</a>";
-} else {
-    echo "<div class=\"no-navi\"/>";
-}
-for ($i = 1 ; $i <= $pages ; $i ++) {
-    if ($i == $page) {
-        echo "<font>" . $i . " </font>";
-    } else {
-        if ($page > 6) {
-            if ($page-6 < $i && $i < $page+5) {
-                echo "<a href=?page=" . $i . " class=\"page-index\">" . $i . "</a> ";
-            }
-        } else {
-            if (10 - $i >= 0) {
-                echo "<a href=?page=" . $i . " class=\"page-index\">" . $i . "</a> ";
-            }
-        }
-    }
-}
-$next_page = $page+1;
-if ($next_page != $pages +1 && $pages > 1) {
-    echo "<a href=?page=".$next_page." class=\"navi-paging\">Next →</a>";
-}
-echo "</div>";
-
+          }?>
+          </font>
+        </div>
+    <? } ?>
+    </div>
+    <div class="relative-content hide-content" id="rel">
+      <h3>查看更多項目</h3>
+        <div class="tab-content">
+          <div class="tab-pane active" id="tab1">
+            <table class="table">
+             <tbody id="relations">
+             </tbody>
+            </table>
+          </div>
+        </div><!-- tab content -->
+    </div>
+    <div class="page">
+      <?
+      $previous_page = $page-1;
+      if ($previous_page != 0) {
+          echo "<a href=?page=" . $previous_page . " class=\"navi-paging\">← Previous</a>";
+      } else {
+          echo "<div class=\"no-navi\"/>";
+      }
+      for ($i = 1 ; $i <= $pages ; $i ++) {
+          if ($i == $page) {
+              echo "<font>" . $i . " </font>";
+          } else {
+              if ($page > 6) {
+                  if ($page-6 < $i && $i < $page+5) {
+                      echo "<a href=?page=" . $i . " class=\"page-index\">" . $i . "</a> ";
+                  }
+              } else {
+                  if (10 - $i >= 0) {
+                      echo "<a href=?page=" . $i . " class=\"page-index\">" . $i . "</a> ";
+                  }
+              }
+          }
+      }
+      $next_page = $page+1;
+      if ($next_page != $pages +1 && $pages > 1) {
+          echo "<a href=?page=".$next_page." class=\"navi-paging\">Next →</a>";
+      }
+      ?>
+      </div>
+    </div>
+    <footer class="footer">
+        Copyright &copy; 2017 Lisa Ko FinFetch website
+    </footer>
+<? }
 mysqli_free_result($result);
 mysqli_close($cnx);
-
 ?>
